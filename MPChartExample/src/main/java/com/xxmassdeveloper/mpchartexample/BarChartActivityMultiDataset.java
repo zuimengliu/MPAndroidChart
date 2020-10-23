@@ -1,43 +1,33 @@
 
 package com.xxmassdeveloper.mpchartexample;
 
-import android.Manifest;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.net.Uri;
+import android.graphics.Matrix;
 import android.os.Bundle;
+
 import androidx.core.content.ContextCompat;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
+
 import android.view.WindowManager;
 import android.widget.SeekBar;
-import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.AxisBase;
-import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
-import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
-import com.github.mikephil.charting.formatter.LargeValueFormatter;
-import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
-import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
-import com.xxmassdeveloper.mpchartexample.custom.MyMarkerView;
+import com.github.mikephil.charting.utils.Fill;
+import com.xxmassdeveloper.mpchartexample.custom.XYMarkerView;
 import com.xxmassdeveloper.mpchartexample.notimportant.DemoBase;
 
 import java.util.ArrayList;
-import java.util.Locale;
+import java.util.Arrays;
+import java.util.List;
 
-public class BarChartActivityMultiDataset extends DemoBase implements OnSeekBarChangeListener,
-        OnChartValueSelectedListener {
+public class BarChartActivityMultiDataset extends DemoBase {
 
     private BarChart chart;
     private SeekBar seekBarX, seekBarY;
@@ -52,238 +42,114 @@ public class BarChartActivityMultiDataset extends DemoBase implements OnSeekBarC
 
         setTitle("BarChartActivityMultiDataset");
 
-        tvX = findViewById(R.id.tvXMax);
-        tvX.setTextSize(10);
-        tvY = findViewById(R.id.tvYMax);
 
-        seekBarX = findViewById(R.id.seekBar1);
-        seekBarX.setMax(50);
-        seekBarX.setOnSeekBarChangeListener(this);
+        BarChart twoBarChart = findViewById(R.id.chart1);
+        twoBarChart.setDrawHighlightEnabled(false);
 
-        seekBarY = findViewById(R.id.seekBar2);
-        seekBarY.setOnSeekBarChangeListener(this);
+        /**
+         * 需求：绘制12个月份的温度和风极双柱形
+         */
+        List<Float> temperatures = Arrays.asList(20f, 24f, 30f, 40f, 50f, 60f, 40f, 20f, 80f, 40f, 20f, 80f);
+        List<Float> fengs = Arrays.asList(25f, 30f, 40f, 40f, 60f, 60f, 70f, 20f, 30f, 40f, 10f, 80f);
+        final List<String> xList = Arrays.asList("一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月");
 
-        chart = findViewById(R.id.chart1);
-        chart.setOnChartValueSelectedListener(this);
-        chart.getDescription().setEnabled(false);
+        //设置曲线整体的配置
+        twoBarChart.setNoDataText("暂无数据");
+        //设置绘制动画
+        twoBarChart.animateXY(1000, 1000);
+        //隐藏说明
+        twoBarChart.getDescription().setEnabled(false);
 
-//        chart.setDrawBorders(true);
-
-        // scaling can now only be done on x- and y-axis separately
-        chart.setPinchZoom(false);
-
-        chart.setDrawBarShadow(false);
-
-        chart.setDrawGridBackground(false);
-
-        // create a custom MarkerView (extend MarkerView) and specify the layout
-        // to use for it
-        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view);
-        mv.setChartView(chart); // For bounds control
-        chart.setMarker(mv); // Set the marker to the chart
-
-        seekBarX.setProgress(10);
-        seekBarY.setProgress(100);
-
-        Legend l = chart.getLegend();
-        l.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
-        l.setHorizontalAlignment(Legend.LegendHorizontalAlignment.RIGHT);
-        l.setOrientation(Legend.LegendOrientation.VERTICAL);
-        l.setDrawInside(true);
-        l.setTypeface(tfLight);
-        l.setYOffset(0f);
-        l.setXOffset(10f);
-        l.setYEntrySpace(0f);
-        l.setTextSize(8f);
-
-        XAxis xAxis = chart.getXAxis();
-        xAxis.setTypeface(tfLight);
-        xAxis.setGranularity(1f);
+        //设置X轴
+        XAxis xAxis = twoBarChart.getXAxis();
+        xAxis.setAxisMinimum(0f); //要设置，否则右侧还有部分图表未展示出来
+        xAxis.setAxisMaximum(xList.size()); //要设置，否则右侧还有部分图表未展示出来
+        xAxis.setLabelCount(5, false); //要设置
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        //设置要不要X轴的网格，就是网格的竖线
+        xAxis.setDrawGridLines(false);
+        //将X轴的值显示在中央
         xAxis.setCenterAxisLabels(true);
-        xAxis.setValueFormatter(new IAxisValueFormatter() {
+
+        IAxisValueFormatter xAxisFormatter = new IAxisValueFormatter() {
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
-                return String.valueOf((int) value);
+                //用(int) Math.abs(value) % xList.size()防止越界
+                return xList.get((int) Math.abs(value) % xList.size());
             }
-        });
+        };
 
-        YAxis leftAxis = chart.getAxisLeft();
-        leftAxis.setTypeface(tfLight);
-        leftAxis.setValueFormatter(new LargeValueFormatter());
-        leftAxis.setDrawGridLines(false);
-        leftAxis.setSpaceTop(35f);
-        leftAxis.setAxisMinimum(0f); // this replaces setStartAtZero(true)
+        xAxis.setValueFormatter(xAxisFormatter);
 
-        chart.getAxisRight().setEnabled(false);
-    }
+        XYMarkerView mv = new XYMarkerView(getBaseContext(), xAxisFormatter);
+        mv.setChartView(twoBarChart); // For bounds control
+        twoBarChart.setMarker(mv); // Set the marker to the barChart
 
-    @Override
-    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-
-        float groupSpace = 0.08f;
-        float barSpace = 0.03f; // x4 DataSet
-        float barWidth = 0.2f; // x4 DataSet
-        // (0.2 + 0.03) * 4 + 0.08 = 1.00 -> interval per "group"
-
-        int groupCount = seekBarX.getProgress() + 1;
-        int startYear = 1980;
-        int endYear = startYear + groupCount;
-
-        tvX.setText(String.format(Locale.ENGLISH, "%d-%d", startYear, endYear));
-        tvY.setText(String.valueOf(seekBarY.getProgress()));
-
-        ArrayList<BarEntry> values1 = new ArrayList<>();
-        ArrayList<BarEntry> values2 = new ArrayList<>();
-        ArrayList<BarEntry> values3 = new ArrayList<>();
-        ArrayList<BarEntry> values4 = new ArrayList<>();
-
-        float randomMultiplier = seekBarY.getProgress() * 100000f;
-
-        for (int i = startYear; i < endYear; i++) {
-            values1.add(new BarEntry(i, (float) (Math.random() * randomMultiplier)));
-            values2.add(new BarEntry(i, (float) (Math.random() * randomMultiplier)));
-            values3.add(new BarEntry(i, (float) (Math.random() * randomMultiplier)));
-            values4.add(new BarEntry(i, (float) (Math.random() * randomMultiplier)));
+        //设置Y轴
+        YAxis rightYAxis = twoBarChart.getAxisRight();
+        //隐藏右边Y轴
+        rightYAxis.setEnabled(false);
+        YAxis leftYAxis = twoBarChart.getAxisLeft();
+        //设置网格为虚线
+//        leftYAxis.enableGridDashedLine(10f, 10f, 0f);
+        leftYAxis.setDrawGridLines(false);
+        List<IBarDataSet> dataSets = new ArrayList<>();
+        //设置温度数据
+        List<BarEntry> entries = new ArrayList<>();
+        for (int i = 0; i < 12; i++) {
+            entries.add(new BarEntry(i, temperatures.get(i)));
         }
+        BarDataSet barDataSet = new BarDataSet(entries, "温度示例");
+        barDataSet.setRadiusPercent(0.2f);
+        //设置柱形的颜色
+        barDataSet.setColor(ContextCompat.getColor(getBaseContext(), android.R.color.holo_orange_dark));
 
-        BarDataSet set1, set2, set3, set4;
+        dataSets.add(barDataSet);
 
-        if (chart.getData() != null && chart.getData().getDataSetCount() > 0) {
-
-            set1 = (BarDataSet) chart.getData().getDataSetByIndex(0);
-            set2 = (BarDataSet) chart.getData().getDataSetByIndex(1);
-            set3 = (BarDataSet) chart.getData().getDataSetByIndex(2);
-            set4 = (BarDataSet) chart.getData().getDataSetByIndex(3);
-            set1.setValues(values1);
-            set2.setValues(values2);
-            set3.setValues(values3);
-            set4.setValues(values4);
-            chart.getData().notifyDataChanged();
-            chart.notifyDataSetChanged();
-
-        } else {
-            // create 4 DataSets
-            set1 = new BarDataSet(values1, "Company A");
-            set1.setColor(Color.rgb(104, 241, 175));
-            set2 = new BarDataSet(values2, "Company B");
-            set2.setColor(Color.rgb(164, 228, 251));
-            set3 = new BarDataSet(values3, "Company C");
-            set3.setColor(Color.rgb(242, 247, 158));
-            set4 = new BarDataSet(values4, "Company D");
-            set4.setColor(Color.rgb(255, 102, 0));
-
-            BarData data = new BarData(set1, set2, set3, set4);
-            data.setValueFormatter(new LargeValueFormatter());
-            data.setValueTypeface(tfLight);
-
-            chart.setData(data);
+        //设置风级数据
+        List<BarEntry> entries2 = new ArrayList<>();
+        for (int i = 0; i < 12; i++) {
+            entries2.add(new BarEntry(i, fengs.get(i)));
         }
+        BarDataSet barDataSet2 = new BarDataSet(entries2, "风级示例");
+        barDataSet2.setRadiusPercent(0.2f);
+        //设置柱形的颜色
+        barDataSet2.setColor(ContextCompat.getColor(getBaseContext(), android.R.color.holo_green_light));
+        dataSets.add(barDataSet2);
 
-        // specify the width each bar should have
-        chart.getBarData().setBarWidth(barWidth);
+        BarData data = new BarData(dataSets);
+        //关键
+        /**
+         * float groupSpace    //柱状图组之间的间距
+         * float barSpace   //每条柱状图之间的间距  一组两个柱状图
+         * float barWidth     //每条柱状图的宽度     一组两个柱状图
+         * (barWidth + barSpace) * barAmount + groupSpace = 1.00
+         * 3个数值 加起来 必须等于 1 即100% 按照百分比来计算 组间距 柱状图间距 柱状图宽度
+         */
+        int barAmount = dataSets.size(); //需要显示柱状图的类别 数量
+        //设置组间距占比30% 每条柱状图宽度占比 70% /barAmount  柱状图间距占比 0%
+        float groupSpace = 0.3f; //柱状图组之间的间距
+        float barSpace = 0.05f;
+        float barWidth = (1f - groupSpace) / barAmount - 0.05f;
+        //设置柱状图宽度
+        data.setBarWidth(barWidth);
+        //(起始点、柱状图组间距、柱状图之间间距)
+        data.groupBars(0f, groupSpace, barSpace);
+        //不画圆柱文字
+        data.setDrawValues(false);
 
-        // restrict the x-axis range
-        chart.getXAxis().setAxisMinimum(startYear);
 
-        // barData.getGroupWith(...) is a helper that calculates the width each group needs based on the provided parameters
-        chart.getXAxis().setAxisMaximum(startYear + chart.getBarData().getGroupWidth(groupSpace, barSpace) * groupCount);
-        chart.groupBars(startYear, groupSpace, barSpace);
-        chart.invalidate();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.bar, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        switch (item.getItemId()) {
-            case R.id.viewGithub: {
-                Intent i = new Intent(Intent.ACTION_VIEW);
-                i.setData(Uri.parse("https://github.com/PhilJay/MPAndroidChart/blob/master/MPChartExample/src/com/xxmassdeveloper/mpchartexample/BarChartActivityMultiDataset.java"));
-                startActivity(i);
-                break;
-            }
-            case R.id.actionToggleValues: {
-                for (IBarDataSet set : chart.getData().getDataSets())
-                    set.setDrawValues(!set.isDrawValuesEnabled());
-
-                chart.invalidate();
-                break;
-            }
-            case R.id.actionTogglePinch: {
-                if (chart.isPinchZoomEnabled())
-                    chart.setPinchZoom(false);
-                else
-                    chart.setPinchZoom(true);
-
-                chart.invalidate();
-                break;
-            }
-            case R.id.actionToggleAutoScaleMinMax: {
-                chart.setAutoScaleMinMaxEnabled(!chart.isAutoScaleMinMaxEnabled());
-                chart.notifyDataSetChanged();
-                break;
-            }
-            case R.id.actionToggleBarBorders: {
-                for (IBarDataSet set : chart.getData().getDataSets())
-                    ((BarDataSet) set).setBarBorderWidth(set.getBarBorderWidth() == 1.f ? 0.f : 1.f);
-
-                chart.invalidate();
-                break;
-            }
-            case R.id.actionToggleHighlight: {
-                if (chart.getData() != null) {
-                    chart.getData().setHighlightEnabled(!chart.getData().isHighlightEnabled());
-                    chart.invalidate();
-                }
-                break;
-            }
-            case R.id.actionSave: {
-                if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                    saveToGallery();
-                } else {
-                    requestStoragePermission(chart);
-                }
-                break;
-            }
-            case R.id.animateX: {
-                chart.animateX(2000);
-                break;
-            }
-            case R.id.animateY: {
-                chart.animateY(2000);
-                break;
-            }
-            case R.id.animateXY: {
-                chart.animateXY(2000, 2000);
-                break;
-            }
-        }
-        return true;
+        twoBarChart.setData(data);
+        Matrix mMatrix = new Matrix();
+        float sx = xList.size() * 2 / 10f;
+        mMatrix.postScale(sx, 1f);
+        twoBarChart.getViewPortHandler().refresh(mMatrix, twoBarChart, false);
+        twoBarChart.animateX(500);
     }
 
     @Override
     protected void saveToGallery() {
-        saveToGallery(chart, "BarChartActivityMultiDataset");
+
     }
 
-    @Override
-    public void onStartTrackingTouch(SeekBar seekBar) {}
-
-    @Override
-    public void onStopTrackingTouch(SeekBar seekBar) {}
-
-    @Override
-    public void onValueSelected(Entry e, Highlight h) {
-        Log.i("Activity", "Selected: " + e.toString() + ", dataSet: " + h.getDataSetIndex());
-    }
-
-    @Override
-    public void onNothingSelected() {
-        Log.i("Activity", "Nothing selected.");
-    }
 }

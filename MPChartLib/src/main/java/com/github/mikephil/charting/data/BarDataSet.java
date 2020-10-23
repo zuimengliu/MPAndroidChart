@@ -283,6 +283,11 @@ public class BarDataSet extends BarLineScatterCandleBubbleDataSet<BarEntry> impl
         return mHighLightAlpha;
     }
 
+    @Override
+    public float getRadiusPrent() {
+        return radiusPercent;
+    }
+
     /**
      * Sets labels for different values of bar-stacks, in case there are one.
      *
@@ -295,5 +300,10 @@ public class BarDataSet extends BarLineScatterCandleBubbleDataSet<BarEntry> impl
     @Override
     public String[] getStackLabels() {
         return mStackLabels;
+    }
+
+   private float radiusPercent = 0;
+    public void setRadiusPercent(float radiusPercent) {
+        this.radiusPercent = radiusPercent;
     }
 }

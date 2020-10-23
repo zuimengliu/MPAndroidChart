@@ -177,8 +177,17 @@ public class BarChartRenderer extends BarLineScatterCandleBubbleRenderer {
                                 isInverted ? Fill.Direction.DOWN : Fill.Direction.UP);
             }
             else {
-                c.drawRect(buffer.buffer[j], buffer.buffer[j + 1], buffer.buffer[j + 2],
+                float radiusPrent = dataSet.getRadiusPrent();
+                float radius = 0;
+                if (radiusPrent!=0){
+                    radius = (buffer.buffer[j + 2] -  buffer.buffer[j])*radiusPrent;
+                }
+
+                c.drawRoundRect(buffer.buffer[j], buffer.buffer[j + 1], buffer.buffer[j + 2],
+                        buffer.buffer[j + 3],radius,radius, mRenderPaint);
+                c.drawRect(buffer.buffer[j], buffer.buffer[j + 1] +radius+5, buffer.buffer[j + 2],
                         buffer.buffer[j + 3], mRenderPaint);
+//                c.drawRoundRect(left, top, right, bottom,radius,radius, paint);
             }
 
             if (drawBorder) {
