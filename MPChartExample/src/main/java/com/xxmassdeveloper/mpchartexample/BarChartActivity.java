@@ -128,6 +128,12 @@ public class BarChartActivity extends DemoBase implements OnSeekBarChangeListene
         mv.setChartView(chart); // For bounds control
         chart.setMarker(mv); // Set the marker to the chart
 
+
+        chart.setDrawHighlightEnabled(false);
+//        chart.setDrawBarShadow(false);
+//        chart.setDrawValueAboveBar(false)
+
+
         // setting data
         seekBarY.setProgress(50);
         seekBarX.setProgress(12);
@@ -165,23 +171,14 @@ public class BarChartActivity extends DemoBase implements OnSeekBarChangeListene
 
             set1.setDrawIcons(false);
 
-            int startColor1 = ContextCompat.getColor(this, android.R.color.holo_orange_light);
-            int startColor2 = ContextCompat.getColor(this, android.R.color.holo_blue_light);
-            int startColor3 = ContextCompat.getColor(this, android.R.color.holo_orange_light);
-            int startColor4 = ContextCompat.getColor(this, android.R.color.holo_green_light);
-            int startColor5 = ContextCompat.getColor(this, android.R.color.holo_red_light);
-            int endColor1 = ContextCompat.getColor(this, android.R.color.holo_blue_dark);
-            int endColor2 = ContextCompat.getColor(this, android.R.color.holo_purple);
-            int endColor3 = ContextCompat.getColor(this, android.R.color.holo_green_dark);
-            int endColor4 = ContextCompat.getColor(this, android.R.color.holo_red_dark);
-            int endColor5 = ContextCompat.getColor(this, android.R.color.holo_orange_dark);
+            int startColor = ContextCompat.getColor(this, android.R.color.holo_red_dark);
+            int endColor = ContextCompat.getColor(this, android.R.color.holo_orange_dark);
 
             List<Fill> gradientFills = new ArrayList<>();
-            gradientFills.add(new Fill(startColor1, endColor1));
-            gradientFills.add(new Fill(startColor2, endColor2));
-            gradientFills.add(new Fill(startColor3, endColor3));
-            gradientFills.add(new Fill(startColor4, endColor4));
-            gradientFills.add(new Fill(startColor5, endColor5));
+            Fill fill = new Fill(startColor, endColor);
+            fill.setPercent(0.3f);
+            gradientFills.add(fill);
+
 
             set1.setFills(gradientFills);
 

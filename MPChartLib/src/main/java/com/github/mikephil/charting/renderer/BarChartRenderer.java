@@ -434,6 +434,8 @@ public class BarChartRenderer extends BarLineScatterCandleBubbleRenderer {
 
         BarData barData = mChart.getBarData();
 
+
+
         for (Highlight high : indices) {
 
             IBarDataSet set = barData.getDataSetByIndex(high.getDataSetIndex());
@@ -479,8 +481,10 @@ public class BarChartRenderer extends BarLineScatterCandleBubbleRenderer {
             prepareBarHighlight(e.getX(), y1, y2, barData.getBarWidth() / 2f, trans);
 
             setHighlightDrawPos(high, mBarRect);
+            if (mChart.isDrawHighlightEnabled()){
+                c.drawRect(mBarRect, mHighlightPaint);
+            }
 
-            c.drawRect(mBarRect, mHighlightPaint);
         }
     }
 

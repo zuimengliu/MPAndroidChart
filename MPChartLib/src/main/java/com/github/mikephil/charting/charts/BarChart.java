@@ -25,6 +25,7 @@ public class BarChart extends BarLineChartBase<BarData> implements BarDataProvid
      * flag that indicates whether the highlight should be full-bar oriented, or single-value?
      */
     protected boolean mHighlightFullBarEnabled = false;
+    private boolean isDrawHighlight = true;
 
     /**
      * if set to true, all values are drawn above their bars, instead of below their top
@@ -208,6 +209,11 @@ public class BarChart extends BarLineChartBase<BarData> implements BarDataProvid
         return mHighlightFullBarEnabled;
     }
 
+    @Override
+    public boolean isDrawHighlightEnabled() {
+        return isDrawHighlight;
+    }
+
     /**
      * Highlights the value at the given x-value in the given DataSet. Provide
      * -1 as the dataSetIndex to undo all highlighting.
@@ -254,5 +260,9 @@ public class BarChart extends BarLineChartBase<BarData> implements BarDataProvid
             getBarData().groupBars(fromX, groupSpace, barSpace);
             notifyDataSetChanged();
         }
+    }
+
+    public void setDrawHighlightEnabled(boolean isDrawHighlight) {
+        this.isDrawHighlight = isDrawHighlight;
     }
 }

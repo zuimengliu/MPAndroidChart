@@ -12,6 +12,7 @@ import androidx.annotation.Nullable;
 
 public class Fill
 {
+
     public enum Type
     {
         EMPTY, COLOR, LINEAR_GRADIENT, DRAWABLE
@@ -51,6 +52,9 @@ public class Fill
      * transparency used for filling
      */
     private int mAlpha = 255;
+    private float  radius = 0;
+
+    private float percent = 0f;
 
     public Fill()
     {
@@ -108,6 +112,14 @@ public class Fill
     {
         this.mColor = color;
         calculateFinalColor();
+    }
+
+    public void setRadius(float radius) {
+        this.radius = radius;
+    }
+
+    public void setPercent(float percent) {
+        this.percent = percent;
     }
 
     public int[] getGradientColors()
@@ -189,8 +201,12 @@ public class Fill
                     // set
                     paint.setStyle(Paint.Style.FILL);
                     paint.setColor(mFinalColor);
-
-                    c.drawRect(left, top, right, bottom, paint);
+                    if (percent!=0){
+                        radius = (right - left)*percent;
+                    }
+//                    c.drawRect(left, top, right, bottom, paint);
+                    c.drawRoundRect(left, top, right, bottom,radius,radius, paint);
+                    c.drawRect(left, top+radius, right, bottom, paint);
 
                     // restore
                     paint.setColor(previousColor);
@@ -230,7 +246,12 @@ public class Fill
 
                 paint.setShader(gradient);
 
-                c.drawRect(left, top, right, bottom, paint);
+//                c.drawRect(left, top, right, bottom, paint);
+                if (percent!=0){
+                    radius = (right - left)*percent;
+                }
+                c.drawRoundRect(left, top, right, bottom,radius,radius, paint);
+                c.drawRect(left, top+radius, right, bottom, paint);
             }
             break;
 

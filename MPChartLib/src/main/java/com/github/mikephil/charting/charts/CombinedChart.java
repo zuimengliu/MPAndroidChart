@@ -207,6 +207,11 @@ public class CombinedChart extends BarLineChartBase<CombinedData> implements Com
         return mHighlightFullBarEnabled;
     }
 
+    @Override
+    public boolean isDrawHighlightEnabled() {
+        return true;
+    }
+
     /**
      * Returns the currently set draw order.
      *
